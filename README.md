@@ -72,7 +72,7 @@ bottom_hex_color = "#92A73F"
 
 - Adjust `icon_padding_ratio` to control the size of the white margin around the embedded icon.
 ```python
-icon_padding_ratio = 0.03
+icon_padding_ratio = 0.01
 ```
 
 ### 4. Run the Script
