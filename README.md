@@ -4,11 +4,24 @@ A Python script that generates various styles of QR codes. You can create everyt
 
 ## ✨ Features
 
-<p align="center">
-  <img src="images/permanent_qr_basic.png" width="250">
-  <img src="images/permanent_qr_gradient.png" width="250">
-  <img src="images/permanent_qr_gradient_icon.png" width="250">
-</p>
+<table>
+<tr>
+<td align="center">
+<img src="images/permanent_qr_basic.png" width="250"><br>
+<b>Basic QR Code</b>
+</td>
+
+<td align="center">
+<img src="images/permanent_qr_gradient.png" width="250"><br>
+<b>Gradient QR Code</b>
+</td>
+
+<td align="center">
+<img src="images/permanent_qr_gradient_icon.png" width="250"><br>
+<b>Icon Embedded QR Code</b>
+</td>
+</tr>
+</table>
 
 ### Basic QR Code (`permanent_qr_basic.png`)
 Generates a standard black-and-white QR code with a high error correction rate (**Error Correction Level H**).
