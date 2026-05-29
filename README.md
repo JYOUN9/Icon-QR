@@ -5,9 +5,7 @@
 *Caption: Main UI of the Icon QR application.*
 
 ## How to use
-
-1. Build once: double-click `build_exe.bat`
-2. Then run: double-click `IconQR.exe`
+Then run: double-click `IconQR.exe`
 
 Run `IconQR.exe`.
 
