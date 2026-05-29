@@ -7,14 +7,24 @@ from qrcode.image.styles.colormasks import VerticalGradiantColorMask
 from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer, SquareModuleDrawer
 
 # URL to encode
-data = "https://arxiv.org/abs/2605.07642"
+data = "https://jyoun9.github.io/"
 
 # PNG icon path
 icon_path = Path("icon.png")
 
-# CVPR-like 2-color gradient (blue -> olive)
-top_color = (24, 90, 153)
-bottom_color = (146, 167, 63)
+
+def hex_to_rgb(hex_code: str) -> tuple[int, int, int]:
+    hex_code = hex_code.strip().lstrip("#")
+    if len(hex_code) != 6:
+        raise ValueError(f"Invalid hex color: {hex_code!r}. Use format RRGGBB.")
+    return tuple(int(hex_code[i : i + 2], 16) for i in (0, 2, 4))
+
+
+# CVPR-like 2-color gradient (blue -> olive) using hex codes
+top_hex_color = "#185A99"
+bottom_hex_color = "#92A73F"
+top_color = hex_to_rgb(top_hex_color)
+bottom_color = hex_to_rgb(bottom_hex_color)
 icon_padding_ratio = 0.03
 
 
