@@ -53,7 +53,7 @@ pip install "qrcode[pil]" Pillow
 Modify the `data` variable in the script to the URL or text you want to encode.
 
 ```python
-data = "https://jyoun9.github.io/"
+data = "https://github.com/ISL-Lab/ISLLab_QR_Generator"
 ```
 
 ### 2. Prepare an Icon (Optional)

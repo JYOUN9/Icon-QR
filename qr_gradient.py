@@ -7,7 +7,7 @@ from qrcode.image.styles.colormasks import VerticalGradiantColorMask
 from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer, SquareModuleDrawer
 
 # URL to encode
-data = "https://jyoun9.github.io/"
+data = "https://github.com/ISL-Lab/ISLLab_QR_Generator"
 
 # PNG icon path
 icon_path = Path("icon.png")
