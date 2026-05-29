@@ -53,7 +53,7 @@ pip install "qrcode[pil]" Pillow
 Modify the `data` variable in the script to the URL or text you want to encode.
 
 ```python
-data = "https://arxiv.org/abs/2605.07642"
+data = "https://jyoun9.github.io/"
 ```
 
 ### 2. Prepare an Icon (Optional)
