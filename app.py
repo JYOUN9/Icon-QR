@@ -14,7 +14,7 @@ from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask, VerticalGradiantColorMask
 from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer, SquareModuleDrawer
 
-DEFAULT_DATA = "https://github.com/ISL-Lab/ISLLab_QR_Generator"
+DEFAULT_DATA = ""
 DEFAULT_TOP_HEX = "#185A99"
 DEFAULT_BOTTOM_HEX = "#92A73F"
 DEFAULT_COLOR_MODE = "solid"
@@ -179,7 +179,7 @@ def index():
     error_message = None
 
     if request.method == "POST":
-        form_data["url"] = request.form.get("url", "").strip() or DEFAULT_DATA
+        form_data["url"] = request.form.get("url", "").strip()
         form_data["color_mode"] = request.form.get("color_mode", DEFAULT_COLOR_MODE).strip().lower()
         form_data["one_color"] = request.form.get("one_color", "").strip()
         form_data["top_hex"] = request.form.get("top_hex", "").strip()
