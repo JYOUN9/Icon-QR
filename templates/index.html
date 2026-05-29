@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Icon QR</title>
+    <style>
+      :root {
+        --bg-1: #edfdfa;
+        --bg-2: #e3f8f5;
+        --ink: #1c3a36;
+        --ink-soft: #4f6f69;
+        --line: #b8dfd8;
+        --card: #ffffff;
+        --tile: #f8fffd;
+        --accent: #16a085;
+        --accent-strong: #0e7d68;
+        --accent-soft: #dcf7ef;
+        --danger-bg: #fff1f1;
+        --danger-ink: #a32a2a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 8% 15%, #d4f2eb 0%, transparent 36%),
+          radial-gradient(circle at 86% 17%, #d4f8f0 0%, transparent 34%),
+          radial-gradient(circle at 78% 86%, #c6eee8 0%, transparent 30%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      }
+
+      .wrap {
+        width: min(1180px, 94vw);
+        margin: 30px auto 42px;
+      }
+
+      .title {
+        margin: 0 0 18px;
+        font-size: clamp(1.65rem, 3vw, 2.35rem);
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+      }
+
+      .title strong {
+        color: var(--accent-strong);
+      }
+
+      .subtitle {
+        margin: 10px 0 22px;
+        color: var(--ink-soft);
+        font-size: 0.96rem;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr minmax(340px, 460px);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .panel {
+        height: 100%;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 10px 28px rgba(16, 86, 74, 0.1);
+      }
+
+      .left-panel {
+        padding: 16px;
+      }
+
+      .right-panel {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tiles {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tile {
+        background: var(--tile);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .tile-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .tile-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .tile-title {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      label {
+        display: inline-block;
+        margin-bottom: 7px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      input[type="text"],
+      input[type="url"],
+      input[type="file"] {
+        width: 100%;
+        border: 1px solid #abd5cd;
+        border-radius: 9px;
+        padding: 10px 11px;
+        font: inherit;
+        color: var(--ink);
+        background: #fff;
+      }
+
+      input[type="text"]:focus,
+      input[type="url"]:focus,
+      input[type="file"]:focus {
+        outline: 2px solid #a5e3d6;
+        border-color: #7bcdbd;
+      }
+
+      .hint {
+        margin: 8px 0 0;
+        font-size: 0.79rem;
+        color: var(--ink-soft);
+      }
+
+      .mode-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .mode-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #a8d8cf;
+        background: #fff;
+        border-radius: 999px;
+        padding: 7px 11px;
+      }
+
+      .mode-chip input {
+        margin: 0;
+      }
+
+      .color-frame {
+        min-height: 138px;
+      }
+
+      .color-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .color-row {
+        display: grid;
+        grid-template-columns: 74px 1fr;
+        gap: 8px;
+      }
+
+      .color-row input[type="color"] {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #abd5cd;
+        border-radius: 9px;
+        background: #fff;
+        padding: 4px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .checkrow {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .checkrow input {
+        width: 17px;
+        height: 17px;
+      }
+
+      .checkrow label {
+        margin: 0;
+      }
+
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+      }
+
+      button,
+      .btn-download {
+        appearance: none;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button {
+        color: #fff;
+        background: linear-gradient(130deg, var(--accent), var(--accent-strong));
+      }
+
+      button.secondary {
+        color: #31544e;
+        background: var(--accent-soft);
+      }
+
+      .btn-download {
+        display: inline-block;
+        color: #fff;
+        background: linear-gradient(130deg, #1ea888, #0f7d67);
+      }
+
+      .error {
+        margin-top: 12px;
+        border: 1px solid #ffd0d0;
+        border-radius: 11px;
+        padding: 11px 12px;
+        color: var(--danger-ink);
+        background: var(--danger-bg);
+        font-size: 0.92rem;
+      }
+
+      .preview-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .preview-head h2 {
+        margin: 0;
+        font-size: 1.02rem;
+      }
+
+      .preview-state {
+        font-size: 0.84rem;
+        color: var(--ink-soft);
+      }
+
+      .preview-box {
+        flex: 1;
+        min-height: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #f3fffc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 14px;
+      }
+
+      .preview-box img {
+        display: block;
+        width: min(360px, 100%);
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid #b9ddd6;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(17, 96, 82, 0.14);
+      }
+
+      .placeholder {
+        text-align: center;
+        max-width: 290px;
+      }
+
+      .placeholder .badge {
+        display: inline-block;
+        border: 1px solid #97d8ca;
+        color: #1d7e6c;
+        background: #e7fbf4;
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .placeholder p {
+        margin: 10px 0 0;
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+        line-height: 1.45;
+      }
+
+      .site-credit {
+        width: min(1180px, 94vw);
+        margin: 12px auto 18px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 0.74rem;
+      }
+
+      .site-credit a {
+        color: var(--accent-strong);
+        text-decoration: none;
+        border-bottom: 1px dotted #7cbfb1;
+      }
+
+      
+@media (max-width: 840px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .right-panel {
+          min-height: 380px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .tile-row {
+          grid-template-columns: 1fr;
+        }
+
+        .tile-head {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1 class="title"><strong>Icon QR</strong></h1>
+      <p class="subtitle">URL, PNG 아이콘, single 또는 gradient 색상을 선택해 최종 QR 1개를 생성합니다.</p>
+      <div class="layout">
+        <section class="panel left-panel">
+          <form method="post" enctype="multipart/form-data" id="qr-form">
+            <div class="tiles">
+              <div class="tile">
+                <label for="url">URL</label>
+                <input
+                  id="url"
+                  name="url"
+                  type="url"
+                  placeholder="https://example.com"
+                  value="{{ form_data.url }}"
+                />
+              </div>
+
+              <div class="tile">
+                <div class="tile-head">
+                  <p class="tile-title">색상 설정</p>
+                  <div class="mode-group">
+                    <label class="mode-chip" for="mode-solid">
+                      <input
+                        id="mode-solid"
+                        name="color_mode"
+                        type="radio"
+                        value="solid"
+                        {% if form_data.color_mode != 'gradient' %}checked{% endif %}
+                      />
+                      single
+                    </label>
+                    <label class="mode-chip" for="mode-gradient">
+                      <input
+                        id="mode-gradient"
+                        name="color_mode"
+                        type="radio"
+                        value="gradient"
+                        {% if form_data.color_mode == 'gradient' %}checked{% endif %}
+                      />
+                      gradient
+                    </label>
+                  </div>
+                </div>
+
+                <div class="color-frame">
+                  <div class="color-section" id="solid-section">
+                    <div class="color-row">
+                      <input type="color" id="one_color_picker" value="{{ form_data.one_color or '#000000' }}" />
+                      <input
+                        id="one_color"
+                        name="one_color"
+                        type="text"
+                        placeholder="#000000"
+                        value="{{ form_data.one_color }}"
+                      />
+                    </div>
+                    <p class="hint">팔레트 선택 또는 HEX 직접 입력 둘 다 가능합니다.</p>
+                  </div>
+
+                  <div class="color-section" id="gradient-section">
+                    <div class="color-row">
+                      <input type="color" id="top_hex_picker" value="{{ form_data.top_hex or '#185A99' }}" />
+                      <input
+                        id="top_hex"
+                        name="top_hex"
+                        type="text"
+                        placeholder="#185A99"
+                        value="{{ form_data.top_hex }}"
+                      />
+                    </div>
+                    <div class="color-row">
+                      <input type="color" id="bottom_hex_picker" value="{{ form_data.bottom_hex or '#92A73F' }}" />
+                      <input
+                        id="bottom_hex"
+                        name="bottom_hex"
+                        type="text"
+                        placeholder="#92A73F"
+                        value="{{ form_data.bottom_hex }}"
+                      />
+                    </div>
+                    <p class="hint">top/bottom 모두 입력해야 gradient로 생성됩니다.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile">
+                <div class="checkrow">
+                  <input
+                    id="use_icon"
+                    name="use_icon"
+                    type="checkbox"
+                    {% if form_data.use_icon %}checked{% endif %}
+                  />
+                  <label for="use_icon">PNG 아이콘 넣기 (optional)</label>
+                </div>
+                <div style="margin-top: 8px;">
+                  <input id="icon_file" name="icon_file" type="file" accept=".png,image/png" />
+                </div>
+                <p class="hint">파일명은 자유롭게 업로드해도 반영됩니다. (PNG)</p>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit">최종 QR 생성</button>
+              <button class="secondary" type="reset">입력 초기화</button>
+            </div>
+          </form>
+
+          {% if error_message %}
+          <div class="error">{{ error_message }}</div>
+          {% endif %}
+        </section>
+
+        <section class="panel right-panel">
+          <div class="preview-head">
+            <h2>미리보기</h2>
+            <span class="preview-state">{% if qr_image_data %}생성 완료{% else %}생성 대기{% endif %}</span>
+          </div>
+
+          <div class="preview-box">
+            {% if qr_image_data %}
+            <img src="data:image/png;base64,{{ qr_image_data }}" alt="Generated QR code" />
+            <div class="actions">
+              <a
+                class="btn-download"
+                href="data:image/png;base64,{{ qr_image_data }}"
+                download="Icon_QR.png"
+              >
+                PNG 다운로드
+              </a>
+            </div>
+            {% else %}
+            <div class="placeholder">
+              <span class="badge">Preview Box</span>
+              <p>왼쪽 설정을 선택하고 QR 생성을 누르면 이 큰 박스에 결과가 표시됩니다.</p>
+            </div>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-credit">
+      <small>
+        Made by Jaeyoung Choi |
+        <a href="https://jyoun9.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
+        |
+        <a href="https://www.linkedin.com/in/jyoung01" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </small>
+    </footer>
+
+    <script>
+      (function () {
+        function normalizeHex(value) {
+          const v = (value || "").trim().toUpperCase();
+          if (/^#?[0-9A-F]{6}$/.test(v)) {
+            return v.startsWith("#") ? v : "#" + v;
+          }
+          return null;
+        }
+
+        function bindColorPair(pickerId, textId, fallbackHex) {
+          const picker = document.getElementById(pickerId);
+          const text = document.getElementById(textId);
+          if (!picker || !text) return;
+
+          function syncPickerFromText() {
+            const normalized = normalizeHex(text.value);
+            picker.value = normalized || fallbackHex;
+          }
+
+          picker.addEventListener("input", function () {
+            text.value = picker.value.toUpperCase();
+          });
+
+          text.addEventListener("input", syncPickerFromText);
+          syncPickerFromText();
+        }
+
+        const solidSection = document.getElementById("solid-section");
+        const gradientSection = document.getElementById("gradient-section");
+        const modeRadios = document.querySelectorAll('input[name="color_mode"]');
+        const iconCheckbox = document.getElementById("use_icon");
+        const iconInput = document.getElementById("icon_file");
+        const form = document.getElementById("qr-form");
+
+        function setSectionState(section, active) {
+          if (!section) return;
+          section.classList.toggle("hidden", !active);
+          section.querySelectorAll("input[type='text'], input[type='color']").forEach(function (input) {
+            input.disabled = !active;
+          });
+        }
+
+        function syncMode() {
+          const selected = document.querySelector('input[name="color_mode"]:checked');
+          const mode = selected ? selected.value : "solid";
+          setSectionState(solidSection, mode === "solid");
+          setSectionState(gradientSection, mode === "gradient");
+        }
+
+        function syncIconInput() {
+          if (!iconCheckbox || !iconInput) return;
+          const active = iconCheckbox.checked;
+          iconInput.disabled = !active;
+          if (!active) {
+            iconInput.value = "";
+          }
+        }
+
+        modeRadios.forEach(function (radio) {
+          radio.addEventListener("change", syncMode);
+        });
+
+        if (iconCheckbox) {
+          iconCheckbox.addEventListener("change", syncIconInput);
+        }
+
+        if (form) {
+          form.addEventListener("reset", function () {
+            setTimeout(function () {
+              syncMode();
+              syncIconInput();
+            }, 0);
+          });
+        }
+
+        bindColorPair("one_color_picker", "one_color", "#000000");
+        bindColorPair("top_hex_picker", "top_hex", "#185A99");
+        bindColorPair("bottom_hex_picker", "bottom_hex", "#92A73F");
+        syncMode();
+        syncIconInput();
+      })();
+    </script>
+  </body>
+</html>
