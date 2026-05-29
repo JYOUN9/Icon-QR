@@ -1,5 +1,6 @@
 # Icon QR (Windows Local App)
 
+## UI
 ## How to use
 
 1. Build once: double-click `build_exe.bat`

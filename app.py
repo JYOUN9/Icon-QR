@@ -7,7 +7,7 @@ import re
 import sys
 from pathlib import Path
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from PIL import Image, UnidentifiedImageError
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
@@ -20,6 +20,12 @@ DEFAULT_BOTTOM_HEX = "#92A73F"
 DEFAULT_COLOR_MODE = "solid"
 ICON_PADDING_RATIO = 0.03
 DEFAULT_ICON_FILENAME = "icon.png"
+FALLBACK_ICON_RELATIVE_PATHS = (
+    Path(DEFAULT_ICON_FILENAME),
+    Path("images") / DEFAULT_ICON_FILENAME,
+    Path("images") / "favicon.ico",
+    Path("favicon.ico"),
+)
 HEX_COLOR_RE = re.compile(r"^#?[0-9a-fA-F]{6}$")
 
 
@@ -40,11 +46,17 @@ def runtime_root_dir() -> Path:
 
 
 def default_icon_candidates() -> list[Path]:
-    return [
-        Path.cwd() / DEFAULT_ICON_FILENAME,
-        runtime_root_dir() / DEFAULT_ICON_FILENAME,
-        bundle_root_dir() / DEFAULT_ICON_FILENAME,
-    ]
+    roots = (Path.cwd(), runtime_root_dir(), bundle_root_dir())
+    candidates: list[Path] = []
+    seen: set[str] = set()
+    for root in roots:
+        for rel_path in FALLBACK_ICON_RELATIVE_PATHS:
+            candidate = root / rel_path
+            key = str(candidate)
+            if key not in seen:
+                seen.add(key)
+                candidates.append(candidate)
+    return candidates
 
 
 def find_default_icon_path() -> Path | None:
@@ -232,6 +244,24 @@ def index():
 @app.get("/health")
 def health():
     return {"status": "ok"}, 200
+
+
+@app.get("/favicon.ico")
+def favicon():
+    candidates = [
+        Path.cwd() / "images" / "favicon.ico",
+        runtime_root_dir() / "images" / "favicon.ico",
+        bundle_root_dir() / "images" / "favicon.ico",
+        Path.cwd() / "favicon.ico",
+        runtime_root_dir() / "favicon.ico",
+        bundle_root_dir() / "favicon.ico",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            response = send_file(candidate, mimetype="image/x-icon")
+            response.headers["Cache-Control"] = "no-store, no-cache, max-age=0"
+            return response
+    return "", 404
 
 
 if __name__ == "__main__":
