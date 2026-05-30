@@ -5,7 +5,9 @@ import io
 import os
 import re
 import sys
+import time
 from pathlib import Path
+from threading import Lock
 
 from flask import Flask, render_template, request, send_file
 from PIL import Image, UnidentifiedImageError
@@ -68,6 +70,25 @@ def find_default_icon_path() -> Path | None:
 
 
 app = Flask(__name__, template_folder=str(bundle_root_dir() / "templates"))
+HEARTBEAT_LOCK = Lock()
+LAST_HEARTBEAT_AT = 0.0
+HEARTBEAT_SEEN = False
+
+
+def mark_heartbeat() -> None:
+    global LAST_HEARTBEAT_AT, HEARTBEAT_SEEN
+    with HEARTBEAT_LOCK:
+        LAST_HEARTBEAT_AT = time.monotonic()
+        HEARTBEAT_SEEN = True
+
+
+def get_heartbeat_state() -> tuple[bool, float]:
+    with HEARTBEAT_LOCK:
+        seen = HEARTBEAT_SEEN
+        if not seen:
+            return False, float("inf")
+        age_seconds = time.monotonic() - LAST_HEARTBEAT_AT
+    return True, max(0.0, age_seconds)
 
 
 def normalize_hex_or_empty(value: str) -> str:
@@ -198,6 +219,7 @@ def generate_qr_png_base64(
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    mark_heartbeat()
     form_data = {
         "url": DEFAULT_DATA,
         "color_mode": DEFAULT_COLOR_MODE,
@@ -275,6 +297,12 @@ def index():
 @app.get("/health")
 def health():
     return {"status": "ok"}, 200
+
+
+@app.post("/__heartbeat")
+def heartbeat():
+    mark_heartbeat()
+    return "", 204
 
 
 @app.get("/favicon.ico")

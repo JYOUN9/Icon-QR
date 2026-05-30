@@ -361,7 +361,7 @@
   <body>
     <main class="wrap">
       <h1 class="title"><strong>Icon QR</strong></h1>
-      <p class="subtitle">URL, PNG ?꾩씠肄? single ?먮뒗 gradient ?됱긽???좏깮??理쒖쥌 QR 1媛쒕? ?앹꽦?⑸땲??</p>
+      <p class="subtitle">URL, PNG 아이콘, single 또는 gradient 색상을 선택해 최종 QR 1개를 생성합니다.</p>
       <div class="layout">
         <section class="panel left-panel">
           <form method="post" enctype="multipart/form-data" id="qr-form">
@@ -379,7 +379,7 @@
 
               <div class="tile">
                 <div class="tile-head">
-                  <p class="tile-title">?됱긽 ?ㅼ젙</p>
+                  <p class="tile-title">색상 설정</p>
                   <div class="mode-group">
                     <label class="mode-chip" for="mode-solid">
                       <input
@@ -416,7 +416,7 @@
                         value="{{ form_data.one_color }}"
                       />
                     </div>
-                    <p class="hint">?붾젅???좏깮 ?먮뒗 HEX 吏곸젒 ?낅젰 ????媛?ν빀?덈떎.</p>
+                    <p class="hint">팔레트 선택 또는 HEX 직접 입력 모두 가능합니다.</p>
                   </div>
 
                   <div class="color-section" id="gradient-section">
@@ -440,7 +440,7 @@
                         value="{{ form_data.bottom_hex }}"
                       />
                     </div>
-                    <p class="hint">top/bottom 紐⑤몢 ?낅젰?댁빞 gradient濡??앹꽦?⑸땲??</p>
+                    <p class="hint">top/bottom 모두 입력해야 gradient로 생성됩니다.</p>
                   </div>
                 </div>
               </div>
@@ -453,17 +453,17 @@
                     type="checkbox"
                     {% if form_data.use_icon %}checked{% endif %}
                   />
-                  <label for="use_icon">PNG ?꾩씠肄??ｊ린 (optional)</label>
+                  <label for="use_icon">PNG 아이콘 넣기 (optional)</label>
                 </div>
                 <div style="margin-top: 8px;">
                   <input id="icon_file" name="icon_file" type="file" accept=".png,image/png" />
                 </div>
-                <p class="hint">?뚯씪紐낆? ?먯쑀濡?쾶 ?낅줈?쒗빐??諛섏쁺?⑸땲?? (PNG)</p>
+                <p class="hint">파일명은 자유롭게 업로드해도 반영됩니다. (PNG)</p>
               </div>
             </div>
 
             <div class="actions">
-              <button type="submit">理쒖쥌 QR ?앹꽦</button>
+              <button type="submit">최종 QR 생성</button>
               <button class="secondary" type="button" id="reset-btn">Reset</button>
             </div>
           </form>
@@ -475,7 +475,7 @@
 
         <section class="panel right-panel">
           <div class="preview-head">
-            <h2>誘몃━蹂닿린</h2>
+            <h2>미리보기</h2>
             <span class="preview-state">{% if qr_image_data %}Generated{% else %}Ready{% endif %}</span>
           </div>
 
@@ -488,14 +488,14 @@
                 href="data:image/png;base64,{{ qr_image_data }}"
                 download="Icon_QR.png"
               >
-                PNG ?ㅼ슫濡쒕뱶
+                PNG 다운로드
               </a>
               <button class="secondary" type="button" id="reset-after-generate-btn">Reset</button>
             </div>
             {% else %}
             <div class="placeholder">
               <span class="badge">Preview Box</span>
-              <p>?쇱そ ?ㅼ젙???좏깮?섍퀬 QR ?앹꽦???꾨Ⅴ硫?????諛뺤뒪??寃곌낵媛 ?쒖떆?⑸땲??</p>
+              <p>왼쪽 설정을 선택하고 QR 생성을 누르면 이 박스에 결과가 표시됩니다.</p>
             </div>
             {% endif %}
           </div>
@@ -559,6 +559,32 @@
         const bottomHexPicker = document.getElementById("bottom_hex_picker");
         const previewState = document.querySelector(".preview-state");
         const previewBox = document.querySelector(".preview-box");
+        let heartbeatTimer = null;
+
+        function sendHeartbeat() {
+          fetch("/__heartbeat", {
+            method: "POST",
+            cache: "no-store",
+            keepalive: true,
+          }).catch(function () {
+            // Ignore heartbeat errors; the watchdog will decide process lifecycle.
+          });
+        }
+
+        function startHeartbeat() {
+          if (heartbeatTimer !== null) {
+            clearInterval(heartbeatTimer);
+          }
+          sendHeartbeat();
+          heartbeatTimer = window.setInterval(sendHeartbeat, 1500);
+        }
+
+        function stopHeartbeat() {
+          if (heartbeatTimer !== null) {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+          }
+        }
 
         function setSectionState(section, active) {
           if (!section) return;
@@ -664,6 +690,18 @@
         bindColorPair("bottom_hex_picker", "bottom_hex", "#92A73F");
         syncMode();
         syncIconInput();
+        startHeartbeat();
+
+        window.addEventListener("beforeunload", function () {
+          if (navigator.sendBeacon) {
+            try {
+              navigator.sendBeacon("/__heartbeat", new Blob(["1"], { type: "text/plain" }));
+            } catch (e) {
+              // Ignore sendBeacon errors.
+            }
+          }
+          stopHeartbeat();
+        });
       })();
     </script>
   </body>

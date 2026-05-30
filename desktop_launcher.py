@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 import threading
+import time
 import traceback
 import webbrowser
 from pathlib import Path
@@ -33,14 +34,39 @@ def write_startup_error_log(exc: BaseException) -> None:
         pass
 
 
+def heartbeat_watchdog(
+    get_heartbeat_state_fn,
+    stale_seconds: float = 6.0,
+    startup_wait_seconds: float = 300.0,
+    poll_interval_seconds: float = 1.0,
+) -> None:
+    started_at = time.monotonic()
+    while True:
+        seen, age = get_heartbeat_state_fn()
+        if seen and age > stale_seconds:
+            os._exit(0)
+
+        if not seen and (time.monotonic() - started_at) > startup_wait_seconds:
+            os._exit(0)
+
+        time.sleep(poll_interval_seconds)
+
+
 def main() -> None:
     try:
-        from app import app
+        from app import app, get_heartbeat_state
 
         host = os.environ.get("ICON_QR_HOST", "127.0.0.1")
         port = int(os.environ.get("ICON_QR_PORT", "5000"))
         open_host = "127.0.0.1" if host in {"0.0.0.0", "::"} else host
         url = f"http://{open_host}:{port}"
+
+        watchdog_thread = threading.Thread(
+            target=heartbeat_watchdog,
+            args=(get_heartbeat_state,),
+            daemon=True,
+        )
+        watchdog_thread.start()
 
         # Start browser shortly after server boot for one-click desktop behavior.
         threading.Timer(0.8, open_browser, args=(url,)).start()
