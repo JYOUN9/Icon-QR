@@ -19,6 +19,7 @@ DEFAULT_TOP_HEX = "#185A99"
 DEFAULT_BOTTOM_HEX = "#92A73F"
 DEFAULT_COLOR_MODE = "solid"
 ICON_PADDING_RATIO = 0.03
+EMBEDDED_ICON_WIDTH_RATIO = 0.18
 DEFAULT_ICON_FILENAME = "icon.png"
 FALLBACK_ICON_RELATIVE_PATHS = (
     Path(DEFAULT_ICON_FILENAME),
@@ -96,20 +97,48 @@ def load_icon_from_path(path: Path) -> Image.Image:
     return Image.open(path).convert("RGBA")
 
 
-def add_icon_margin(
+def resize_icon_fixed_width_keep_ratio(
     icon_rgba: Image.Image,
-    padding_ratio: float = ICON_PADDING_RATIO,
-    margin_color: tuple[int, int, int, int] = (255, 255, 255, 255),
+    target_width_px: int,
 ) -> Image.Image:
-    w, h = icon_rgba.size
-    base = max(w, h)
-    pad = max(1, int(base * padding_ratio))
-    out_size = base + (pad * 2)
-    out = Image.new("RGBA", (out_size, out_size), margin_color)
-    x = (out_size - w) // 2
-    y = (out_size - h) // 2
-    out.alpha_composite(icon_rgba, (x, y))
-    return out
+    src_w, src_h = icon_rgba.size
+    if src_w <= 0 or src_h <= 0:
+        return icon_rgba
+    target_height_px = max(1, int(round((src_h / src_w) * target_width_px)))
+    if hasattr(Image, "Resampling"):
+        resample_method = Image.Resampling.LANCZOS
+    else:
+        resample_method = Image.LANCZOS
+    return icon_rgba.resize((target_width_px, target_height_px), resample=resample_method)
+
+
+def overlay_center_icon(
+    qr_image: Image.Image,
+    icon_rgba: Image.Image,
+    width_ratio: float = EMBEDDED_ICON_WIDTH_RATIO,
+    padding_ratio: float = ICON_PADDING_RATIO,
+    background_color: tuple[int, int, int, int] = (255, 255, 255, 255),
+) -> Image.Image:
+    qr_rgba = qr_image.convert("RGBA")
+    qr_w, qr_h = qr_rgba.size
+    if qr_w <= 0 or qr_h <= 0:
+        return qr_rgba
+
+    icon_target_w = max(1, int(round(qr_w * width_ratio)))
+    resized_icon = resize_icon_fixed_width_keep_ratio(icon_rgba, icon_target_w)
+    resized_w, resized_h = resized_icon.size
+
+    # Keep a small white safety area around the logo for scanner readability.
+    pad = max(1, int(round(icon_target_w * padding_ratio)))
+    container_w = resized_w + (pad * 2)
+    container_h = resized_h + (pad * 2)
+    container = Image.new("RGBA", (container_w, container_h), background_color)
+    container.alpha_composite(resized_icon, (pad, pad))
+
+    pos_x = (qr_w - container_w) // 2
+    pos_y = (qr_h - container_h) // 2
+    qr_rgba.alpha_composite(container, (pos_x, pos_y))
+    return qr_rgba
 
 
 def build_color_mask(one_color: str, top_hex: str, bottom_hex: str):
@@ -152,13 +181,15 @@ def generate_qr_png_base64(
         "color_mask": color_mask,
     }
 
-    if icon_rgba is not None:
-        icon_with_margin = add_icon_margin(icon_rgba)
-        make_image_kwargs["embedded_image"] = icon_with_margin
-        make_image_kwargs["embedded_image_ratio"] = 0.18
-
     img = qr.make_image(**make_image_kwargs)
     pil_image = img.get_image() if hasattr(img, "get_image") else img
+    if icon_rgba is not None:
+        pil_image = overlay_center_icon(
+            qr_image=pil_image,
+            icon_rgba=icon_rgba,
+            width_ratio=EMBEDDED_ICON_WIDTH_RATIO,
+            padding_ratio=ICON_PADDING_RATIO,
+        )
 
     buffer = io.BytesIO()
     pil_image.save(buffer, format="PNG")

@@ -546,6 +546,17 @@
         const iconInput = document.getElementById("icon_file");
         const form = document.getElementById("qr-form");
         const resetBtn = document.getElementById("reset-btn");
+        const urlInput = document.getElementById("url");
+        const modeSolid = document.getElementById("mode-solid");
+        const modeGradient = document.getElementById("mode-gradient");
+        const oneColorText = document.getElementById("one_color");
+        const oneColorPicker = document.getElementById("one_color_picker");
+        const topHexText = document.getElementById("top_hex");
+        const topHexPicker = document.getElementById("top_hex_picker");
+        const bottomHexText = document.getElementById("bottom_hex");
+        const bottomHexPicker = document.getElementById("bottom_hex_picker");
+        const previewState = document.querySelector(".preview-state");
+        const previewBox = document.querySelector(".preview-box");
 
         function setSectionState(section, active) {
           if (!section) return;
@@ -571,6 +582,19 @@
           }
         }
 
+        function resetPreviewAndErrors() {
+          if (previewState) {
+            previewState.textContent = "Ready";
+          }
+          if (previewBox) {
+            previewBox.innerHTML =
+              '<div class="placeholder"><span class="badge">Preview Box</span><p>Fill options and click Generate QR.</p></div>';
+          }
+          document.querySelectorAll(".error").forEach(function (node) {
+            node.remove();
+          });
+        }
+
         modeRadios.forEach(function (radio) {
           radio.addEventListener("change", syncMode);
         });
@@ -581,7 +605,49 @@
 
         if (resetBtn) {
           resetBtn.addEventListener("click", function () {
-            window.location.href = window.location.pathname;
+            if (form) {
+              form.reset();
+            }
+
+            if (urlInput) {
+              urlInput.value = "";
+            }
+            if (modeSolid) {
+              modeSolid.checked = true;
+            }
+            if (modeGradient) {
+              modeGradient.checked = false;
+            }
+
+            if (oneColorText) {
+              oneColorText.value = "";
+            }
+            if (oneColorPicker) {
+              oneColorPicker.value = "#000000";
+            }
+            if (topHexText) {
+              topHexText.value = "";
+            }
+            if (topHexPicker) {
+              topHexPicker.value = "#185A99";
+            }
+            if (bottomHexText) {
+              bottomHexText.value = "";
+            }
+            if (bottomHexPicker) {
+              bottomHexPicker.value = "#92A73F";
+            }
+
+            if (iconCheckbox) {
+              iconCheckbox.checked = false;
+            }
+            if (iconInput) {
+              iconInput.value = "";
+            }
+
+            syncMode();
+            syncIconInput();
+            resetPreviewAndErrors();
           });
         }
 
