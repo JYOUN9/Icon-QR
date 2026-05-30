@@ -490,6 +490,7 @@
               >
                 PNG ?ㅼ슫濡쒕뱶
               </a>
+              <button class="secondary" type="button" id="reset-after-generate-btn">Reset</button>
             </div>
             {% else %}
             <div class="placeholder">
@@ -546,6 +547,7 @@
         const iconInput = document.getElementById("icon_file");
         const form = document.getElementById("qr-form");
         const resetBtn = document.getElementById("reset-btn");
+        const resetAfterGenerateBtn = document.getElementById("reset-after-generate-btn");
         const urlInput = document.getElementById("url");
         const modeSolid = document.getElementById("mode-solid");
         const modeGradient = document.getElementById("mode-gradient");
@@ -603,52 +605,58 @@
           iconCheckbox.addEventListener("change", syncIconInput);
         }
 
+        function performFullReset() {
+          if (form) {
+            form.reset();
+          }
+
+          if (urlInput) {
+            urlInput.value = "";
+          }
+          if (modeSolid) {
+            modeSolid.checked = true;
+          }
+          if (modeGradient) {
+            modeGradient.checked = false;
+          }
+
+          if (oneColorText) {
+            oneColorText.value = "";
+          }
+          if (oneColorPicker) {
+            oneColorPicker.value = "#000000";
+          }
+          if (topHexText) {
+            topHexText.value = "";
+          }
+          if (topHexPicker) {
+            topHexPicker.value = "#185A99";
+          }
+          if (bottomHexText) {
+            bottomHexText.value = "";
+          }
+          if (bottomHexPicker) {
+            bottomHexPicker.value = "#92A73F";
+          }
+
+          if (iconCheckbox) {
+            iconCheckbox.checked = false;
+          }
+          if (iconInput) {
+            iconInput.value = "";
+          }
+
+          syncMode();
+          syncIconInput();
+          resetPreviewAndErrors();
+        }
+
         if (resetBtn) {
-          resetBtn.addEventListener("click", function () {
-            if (form) {
-              form.reset();
-            }
+          resetBtn.addEventListener("click", performFullReset);
+        }
 
-            if (urlInput) {
-              urlInput.value = "";
-            }
-            if (modeSolid) {
-              modeSolid.checked = true;
-            }
-            if (modeGradient) {
-              modeGradient.checked = false;
-            }
-
-            if (oneColorText) {
-              oneColorText.value = "";
-            }
-            if (oneColorPicker) {
-              oneColorPicker.value = "#000000";
-            }
-            if (topHexText) {
-              topHexText.value = "";
-            }
-            if (topHexPicker) {
-              topHexPicker.value = "#185A99";
-            }
-            if (bottomHexText) {
-              bottomHexText.value = "";
-            }
-            if (bottomHexPicker) {
-              bottomHexPicker.value = "#92A73F";
-            }
-
-            if (iconCheckbox) {
-              iconCheckbox.checked = false;
-            }
-            if (iconInput) {
-              iconInput.value = "";
-            }
-
-            syncMode();
-            syncIconInput();
-            resetPreviewAndErrors();
-          });
+        if (resetAfterGenerateBtn) {
+          resetAfterGenerateBtn.addEventListener("click", performFullReset);
         }
 
         bindColorPair("one_color_picker", "one_color", "#000000");
